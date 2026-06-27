@@ -92,6 +92,11 @@ const CLAUDE_CAP: ProviderLoginCapability = {
   token: { vars: ["ANTHROPIC_API_KEY", "CLAUDE_CODE_OAUTH_TOKEN"] },
 };
 
+const DROID_CAP: ProviderLoginCapability = {
+  oauthArgs: [],
+  token: { vars: ["FACTORY_API_KEY"] },
+};
+
 function claudeState(
   loginCapability: ProviderLoginCapability | null,
 ): ProviderCliState {
@@ -139,6 +144,28 @@ function cursorState(): ProviderCliState {
   };
 }
 
+function droidState(): ProviderCliState {
+  return {
+    providerId: "droid",
+    enabled: true,
+    disabledBy: null,
+    selected: { kind: "bundled" },
+    candidates: [],
+    auth: {
+      status: "unauthenticated",
+      badgeText: null,
+      label: null,
+      detail: null,
+    },
+    authPending: false,
+    checkedAt: null,
+    apiKey: { supported: false, configured: false, source: null },
+    terminalAgentArgs: "",
+    envOverrides: [],
+    loginCapability: DROID_CAP,
+  };
+}
+
 describe("<ProviderReauthBanner />", () => {
   beforeEach(() => {
     mocks.startLoginMutate.mockReset();
@@ -162,6 +189,17 @@ describe("<ProviderReauthBanner />", () => {
     );
 
     expect(screen.getByRole("button", { name: /Authenticate/ })).toBeDefined();
+  });
+
+  it("offers Authenticate for bare-binary OAuth flows", () => {
+    render(<ProviderReauthBanner providerId="droid" state={droidState()} />);
+
+    fireEvent.click(screen.getByRole("button", { name: /Authenticate/ }));
+
+    expect(mocks.startLoginMutate).toHaveBeenCalledWith(
+      { providerId: "droid" },
+      expect.anything(),
+    );
   });
 
   it("re-checks sign-in status via the manual Refresh button", () => {

@@ -675,6 +675,15 @@ export const grokUserMessageAnchorResolvedSchema = z.object({
   grokSessionId: z.string().nullable(),
 });
 
+export const droidUserMessageAnchorResolvedSchema = z.object({
+  harnessId: z.literal("droid"),
+  sessionId: z.string(),
+  // The ACP session id the `droid exec --output-format acp` process assigned
+  // for this turn. Null until `session/new` resolves; used to resume the same
+  // ACP session when Droid supports loading it.
+  droidSessionId: z.string().nullable(),
+});
+
 export const userMessageAnchorResolvedEventSchema = z.object({
   ...baseRuntimeEventFields,
   type: z.literal("user_message.anchor_resolved"),
@@ -686,6 +695,7 @@ export const userMessageAnchorResolvedEventSchema = z.object({
     cursorUserMessageAnchorResolvedSchema,
     traycerUserMessageAnchorResolvedSchema,
     grokUserMessageAnchorResolvedSchema,
+    droidUserMessageAnchorResolvedSchema,
   ]),
 });
 export type UserMessageAnchorResolvedEvent = z.infer<
